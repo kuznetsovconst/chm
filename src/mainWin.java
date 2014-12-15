@@ -4,11 +4,8 @@ import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
-import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.InputMethodEvent;
-import java.awt.event.InputMethodListener;
 import java.io.File;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
@@ -32,56 +29,66 @@ public class mainWin {
     private JButton openFileButtonA;
     private JLabel orderJLabel;
     private JButton generateButton;
-    private JLabel progresJLabel;
+    public JLabel progresJLabel;
     private boolean flagM = true;
     public errorWind errorWindow;
     private File fileA;
     private File fileB;
     private File fileM;
-    private int iter;
+    public int iter;
 
-    public mainWin(Solver A) {
+    public mainWin(Presenter presenter) {
         iter = 1;
         ButtonGroup group = new ButtonGroup();
         group.add(manualRadioButton);
         group.add(autoRadioButton);
 
-        openFileButtonA.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                fileA = ChoiseFile();
-            }
-        });
-        openFileButtonB.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                fileB = ChoiseFile();
-            }
-        });
-        openFileButtonM.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                fileM = ChoiseFile();
-            }
-        });
+        openFileButtonA.addActionListener(getOpenFileButtonAL());
+        openFileButtonB.addActionListener(getOpenFileButtonBL());
+        openFileButtonM.addActionListener(getOpenFileButtonML());
+        usingECheckBox.addChangeListener(getECheckBoxL());
+        autoRadioButton.addChangeListener(getAutoRadioButtonL());
+        manualRadioButton.addChangeListener(getManualRadioButtonL());
+        generateButton.addActionListener(presenter.getGenerateL());
+        toSolveButton.addActionListener(presenter.getToSolveL());
+        getDataButton.addActionListener(presenter.getDataButtonL());
+        plotFromDataButton.addActionListener(presenter.getPlotFromDataL());
 
-        usingECheckBox.addChangeListener(new ChangeListener() {
+        autoRadioButton.doClick(); // изначальное состояние радио кнопки
+    }
+
+
+    private void createUIComponents() {
+        // TODO: place custom component creation code here
+    }
+
+
+
+
+    public ChangeListener getManualRadioButtonL() {
+      return  new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                if (flagM) {
-                    flagM = false;
-                    openFileButtonM.setEnabled(flagM);
+                boolean flag = true;
+                matrixAJLabel.setEnabled(flag);
+                matrixbJLabel.setEnabled(flag);
+                matrixMJLabel.setEnabled(flag);
+                openFileButtonM.setEnabled(flag);
+                openFileButtonA.setEnabled(flag);
+                openFileButtonB.setEnabled(flag);
+                usingECheckBox.setEnabled(flag);
 
-                } else {
-                    flagM = true;
-                    openFileButtonM.setEnabled(flagM);
 
-                }
+                orderJLabel.setEnabled(!flag);
+                orderTextField1.setEnabled(!flag);
+                generateButton.setEnabled(!flag);
+                progresJLabel.setEnabled(!flag);
             }
-        });
+        };
+    }
 
-
-        autoRadioButton.addChangeListener(new ChangeListener() {
+    public ChangeListener getAutoRadioButtonL() {
+        return new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
 
@@ -100,65 +107,56 @@ public class mainWin {
                 generateButton.setEnabled(!flag);
                 progresJLabel.setEnabled(!flag);
             }
-        });
-        manualRadioButton.addChangeListener(new ChangeListener() {
+        };
+    }
+
+    public ChangeListener getECheckBoxL() {
+        return new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                boolean flag = true;
-                matrixAJLabel.setEnabled(flag);
-                matrixbJLabel.setEnabled(flag);
-                matrixMJLabel.setEnabled(flag);
-                openFileButtonM.setEnabled(flag);
-                openFileButtonA.setEnabled(flag);
-                openFileButtonB.setEnabled(flag);
-                usingECheckBox.setEnabled(flag);
+                if (flagM) {
+                    flagM = false;
+                    openFileButtonM.setEnabled(flagM);
 
+                } else {
+                    flagM = true;
+                    openFileButtonM.setEnabled(flagM);
 
-                orderJLabel.setEnabled(!flag);
-                orderTextField1.setEnabled(!flag);
-                generateButton.setEnabled(!flag);
-                progresJLabel.setEnabled(!flag);
+                }
             }
-        });
+        };
+    }
 
-
-        generateButton.addActionListener(new ActionListener() {
+    public ActionListener getOpenFileButtonAL() {
+        return new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String ord = orderTextField1.getText();
-                try {
-                    int o = parseTextField(ord);
-
-                    Algorithm T = new Algorithm(o, o, 50); // захардкожен интервал псевдослучайных чисел
-                    Algorithm b = new Algorithm();
-                    Algorithm M = new Algorithm();
-                    b.setRandomMatrix(o, 1, 50); // захардкожен интервал псевдослучайных чисел
-                    M.setRandomMatrix(o, o, 1); // захардкожен интервал псевдослучайных чисел
-
-                    // В Солвере в поле лист алгоритма матрицы М будут лежать М - рандомная, Е, М - рандомная, Е и т.д.
-
-
-
-                            String it = iter + "";
-                    progresJLabel.setText("Number of gen matrix: " + it);
-                    ++iter;
-                } catch (NumberFormatException ex) {
-                    createErrWind("Incorrect input. Please input correctly order.");
+                fileA = ChoiseFile();
+                if (fileA != null) {
                 }
-
-
             }
-        });
-
-        autoRadioButton.doClick(); // изначальное состояние радио кнопки
+        };
     }
 
-
-    private void createUIComponents() {
-        // TODO: place custom component creation code here
+    public ActionListener getOpenFileButtonML() {
+        return new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                fileM = ChoiseFile();
+            }
+        };
     }
 
-    private static int parseTextField(String s) throws NumberFormatException {
+    public ActionListener getOpenFileButtonBL() {
+        return new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                fileB = ChoiseFile();
+            }
+        };
+    }
+
+    public int parseTextField(String s) throws NumberFormatException {
         int a;
         a = Integer.parseInt(s);
         return a;
@@ -197,6 +195,10 @@ public class mainWin {
 
     public File getFileM() {
         return fileM;
+    }
+
+    public String getText() {
+        return orderTextField1.getText();
     }
 
     public void createErrWind(String a) {
@@ -389,4 +391,7 @@ public class mainWin {
     public JComponent $$$getRootComponent$$$() {
         return rootPanel;
     }
+
 }
+
+
