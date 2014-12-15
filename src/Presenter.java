@@ -1,18 +1,32 @@
+import com.sun.javafx.sg.PGShape;
+import javafx.application.Application;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.ui.ApplicationFrame;
+import org.jfree.ui.RefineryUtilities;
+import org.jfree.data.category.DefaultCategoryDataset;
+
+
+import javax.sound.sampled.Line;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.*;
 
 
+
 public class Presenter {
     private List<Model> listModel;
     private mainWin view;
 
-    public Presenter(){
+    public Presenter() {
         listModel = new ArrayList<Model>();
         view = new mainWin(this);
         initWindow();
     }
+
     public void initWindow() {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
@@ -23,6 +37,7 @@ public class Presenter {
                 frame.setContentPane(a);
                 frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                 frame.pack();
+                frame.setLocation(300,300);
                 frame.setVisible(true);
             }
         });
@@ -39,6 +54,7 @@ public class Presenter {
 
                     String it = view.iter + "";
                     view.progresJLabel.setText("Number of gen matrix: " + it);
+                    ++view.iter;
                     ++view.iter;
                 } catch (NumberFormatException ex) {
                     view.createErrWind("Incorrect input. Please input correctly order.");
@@ -59,8 +75,8 @@ public class Presenter {
                 int i = 0;
                 while (l.hasNext()) {
                     i++;
-                    System.out.println("Решаю уравнение № " + i);
-                    l.next().solve();
+                    Model temp = l.next();
+                    temp.solve();
                     System.out.println("Закончил решать уравнение № " + i);
                 }
             }
@@ -72,13 +88,15 @@ public class Presenter {
             @Override
             public void actionPerformed(ActionEvent e) {
                 System.out.println("Жмакнули кнопку getData");
-                Iterator<Model> l = listModel.iterator();
+                ListIterator<Model> l = listModel.listIterator();
                 while (l.hasNext()) {
-                    if (l.next().getVectorSolve() == null) {
+                    Model temp = l.next();
+                    if (temp.getVectorSolve() == null) {
                         view.createErrWind("Matrix is not solving .Please put on toSolve");
                     } else {
-                        System.out.println("будет пробовать печатать");
-                        l.next().printSolveInConsole();
+                        temp.printSolveInConsole();
+                        System.out.println("Время выполнения: " + temp.getTime());
+                        System.out.println("Количество итераций: " + temp.getIterator());
                     }
                 }
             }
@@ -89,18 +107,56 @@ public class Presenter {
         return new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                System.out.println("Жмакнули кнопку plot");
+                plotGraph();
             }
         };
     }
 
-    public void genMatrix(int i){
-        System.out.println("Управление перешло в презентер (т.е контроллер)" + " " + i);
-        this.listModel.add(new Model(i));
+    public void genMatrix(int i) {
+//        System.out.println("Управление перешло в презентер (т.е контроллер)" + " " + i);
+        Model temp = new Model(i);
+        this.listModel.add(temp);
+        this.listModel.add(new Model(temp, Model.MODEL_USE_E)); // создание копии уравнения, но только M = E
+    }
+
+    public void plotGraph(){
+        LineChart_AWT chart = new LineChart_AWT("Graph", "Iter of ORD");
+        chart.pack();
+        chart.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        RefineryUtilities.centerFrameOnScreen( chart);
+        chart.setVisible(true);
+    }
+
+    public class LineChart_AWT extends ApplicationFrame {
+
+        public LineChart_AWT(String applTitle, String chartTitle) {
+            super(applTitle);
+            JFreeChart lineChart = ChartFactory.createLineChart(
+                    chartTitle,
+                    "ordinary", "Iteration",
+                    createDataset(),
+                    PlotOrientation.VERTICAL,
+                    true, true, false);
+
+            ChartPanel chartPanel = new ChartPanel(lineChart);
+            chartPanel.setPreferredSize( new java.awt.Dimension(560, 360));
+            setContentPane(chartPanel);
+        }
+
+        private DefaultCategoryDataset createDataset() {
+            DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+
+            for(Model u: listModel){
+                int i = u.getIterator();
+                int o = u.getOrd();
+                dataset.addValue(i, "help", o + "");
+            }
+
+            return dataset;
+        }
     }
 
 
-    public static void update(){}
-
-
 }
+
+
