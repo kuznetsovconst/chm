@@ -76,8 +76,11 @@ public class Presenter {
                 while (l.hasNext()) {
                     i++;
                     Model temp = l.next();
-                    temp.solve();
-                    System.out.println("Закончил решать уравнение № " + i);
+                    if ( temp.getVectorSolve() == null) {
+                        temp.solve();
+                        System.out.println("Закончил решать уравнение № " + i);
+                    }
+
                 }
             }
         };
