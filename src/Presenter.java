@@ -1,5 +1,3 @@
-import com.sun.javafx.sg.PGShape;
-import javafx.application.Application;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -9,12 +7,14 @@ import org.jfree.ui.RefineryUtilities;
 import org.jfree.data.category.DefaultCategoryDataset;
 
 
-import javax.sound.sampled.Line;
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.*;
-
+import java.util.List;
 
 
 public class Presenter {
@@ -120,30 +120,41 @@ public class Presenter {
     }
 
     public void plotGraph(){
-        LineChart_AWT chart = new LineChart_AWT("Graph", "Iter of ORD");
+        final LineChart_AWT chart = new LineChart_AWT("Graph", "Iter of ORD");
         chart.pack();
-        chart.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        RefineryUtilities.centerFrameOnScreen( chart);
+        //chart.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+        RefineryUtilities.centerFrameOnScreen(chart);
         chart.setVisible(true);
+
+        chart.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                chart.setVisible(false);
+            }
+        });
+
     }
 
     public class LineChart_AWT extends ApplicationFrame {
 
         public LineChart_AWT(String applTitle, String chartTitle) {
             super(applTitle);
-            JFreeChart lineChart = ChartFactory.createLineChart(
+            JFreeChart OrdOfIter = ChartFactory.createLineChart(
                     chartTitle,
                     "ordinary", "Iteration",
-                    createDataset(),
+                    createDatasetOrdOfIter(),
                     PlotOrientation.VERTICAL,
                     true, true, false);
 
-            ChartPanel chartPanel = new ChartPanel(lineChart);
+
+            ChartPanel chartPanel = new ChartPanel(OrdOfIter);
             chartPanel.setPreferredSize( new java.awt.Dimension(560, 360));
-            setContentPane(chartPanel);
+            super.getContentPane().add(chartPanel);
+            this.addWindowListener(this);
+
         }
 
-        private DefaultCategoryDataset createDataset() {
+        private DefaultCategoryDataset createDatasetOrdOfIter() {
             DefaultCategoryDataset dataset = new DefaultCategoryDataset();
 
             for(Model u: listModel){
@@ -154,6 +165,26 @@ public class Presenter {
 
             return dataset;
         }
+
+        @Override
+        public void windowClosing(WindowEvent event) {
+            if (event.getWindow() == null) {
+                this.dispose();
+                System.exit(0);
+            }
+        }
+
+        //        private DefaultCategoryDataset createDa() {
+//            DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+//
+//            for(Model u: listModel){
+//                int i = u.getIterator();
+//                int o = u.getOrd();
+//                dataset.addValue(i, "help", o + "");
+//            }
+//
+//            return dataset;
+//        }
     }
 
 
