@@ -42,7 +42,7 @@ public class Presenter {
                 frame.setContentPane(a);
                 frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                 frame.pack();
-                frame.setLocation(300,300);
+                frame.setLocation(300, 300);
                 frame.setVisible(true);
             }
         });
@@ -124,7 +124,7 @@ public class Presenter {
         this.listModel.add(new Model(temp, Model.MODEL_USE_E)); // создание копии уравнения, но только M = E
     }
 
-    public void plotGraph(){
+    public void plotGraph() {
         final LineChart_AWT chart = new LineChart_AWT("Graph", "Iter of ORD");
         chart.pack();
         //chart.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
@@ -140,32 +140,32 @@ public class Presenter {
 
     }
 
-    public void initTestGird(){
+    public void initTestGird() {
         int k = 150;
-        for (int i = 0 ; i < 10; i++){
-            Grid temp = new Grid(1,25,k);
+        for (int i = 0; i < 10; i++) {
+            Grid temp = new Grid(1, 25, k);
             this.listXval.add(temp);
-            k+=50;
+            k += 50;
         }
 
     }
 
-    public void initTestInterpolationFunction(String f, int el){
-        for (Grid v : listXval){
-            InterpolationFunctions temp = new InterpolationFunctions(f,v,el);
+    public void initTestInterpolationFunction(String f, int el) {
+        for (Grid v : listXval) {
+            InterpolationFunctions temp = new InterpolationFunctions(f, v, el);
             this.ListExperiment.add(temp);
         }
     }
 
-    public ActionListener getTestExample(){
+    public ActionListener getTestExample() {
         return new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String func = view.getFuncTextField();
                 try {
                     initTestGird();
-                    initTestInterpolationFunction(func,5);
-                }catch (NumberFormatException ex) {
+                    initTestInterpolationFunction(func, 51);
+                } catch (NumberFormatException ex) {
                     view.createErrWind("Incorrect function. Please input correctly function");
                 }
 
@@ -173,11 +173,11 @@ public class Presenter {
         };
     }
 
-    public ActionListener getDataInterpolation(){
+    public ActionListener getDataInterpolation() {
         return new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                for (InterpolationFunctions t : ListExperiment){
+                for (InterpolationFunctions t : ListExperiment) {
                     t.print();
                 }
             }
@@ -185,16 +185,36 @@ public class Presenter {
 
     }
 
-    public ActionListener getPlotFunc(){
+    public void plotGraphFunction() {
+        final IntrepolationChart_AWT chart = new IntrepolationChart_AWT("Graph", "Iter of ORD");
+        chart.pack();
+        //chart.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+        RefineryUtilities.centerFrameOnScreen(chart);
+        chart.setVisible(true);
+
+        chart.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                chart.setVisible(false);
+            }
+        });
+    }
+
+    public ActionListener getPlotFunc() {
         return new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-               System.out.println("строим график функций");
+                plotGraphFunction();
+                if (view.getFuncTextField().equals("") | view.getBeginTextField().equals("") | view.getBTextField().equals("") | view.getIterTextField().equals("") | view.getEndTextField().equals("")) {
+                    //view.createErrWind("ERROR.");
+                } else {
+                   // plotGraphFunction();
+                }
             }
         };
     }
 
-    public ActionListener getPlotData(){
+    public ActionListener getPlotData() {
         return new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -216,7 +236,7 @@ public class Presenter {
 
 
             ChartPanel chartPanel = new ChartPanel(OrdOfIter);
-            chartPanel.setPreferredSize( new java.awt.Dimension(560, 360));
+            chartPanel.setPreferredSize(new java.awt.Dimension(560, 360));
             super.getContentPane().add(chartPanel);
             this.addWindowListener(this);
 
@@ -225,7 +245,7 @@ public class Presenter {
         private DefaultCategoryDataset createDatasetOrdOfIter() {
             DefaultCategoryDataset dataset = new DefaultCategoryDataset();
 
-            for(Model u: listModel){
+            for (Model u : listModel) {
                 int i = u.getIterator();
                 int o = u.getOrd();
                 dataset.addValue(i, "help", o + "");
@@ -242,20 +262,55 @@ public class Presenter {
             }
         }
 
-        //        private DefaultCategoryDataset createDa() {
-//            DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-//
-//            for(Model u: listModel){
-//                int i = u.getIterator();
-//                int o = u.getOrd();
-//                dataset.addValue(i, "help", o + "");
-//            }
-//
-//            return dataset;
-//        }
+
     }
 
 
+    public class IntrepolationChart_AWT extends ApplicationFrame {
+
+        public IntrepolationChart_AWT(String applTitle, String chartTitle) {
+            super(applTitle);
+
+            JFreeChart OrdOfIter = ChartFactory.createLineChart(
+                    chartTitle,
+                    "x", "f(x)",
+                    createDatasetOrdOfIter(),
+                    PlotOrientation.VERTICAL,
+                    true, true, false);
+
+
+            ChartPanel chartPanel = new ChartPanel(OrdOfIter);
+            chartPanel.setPreferredSize(new java.awt.Dimension(560, 360));
+            super.getContentPane().add(chartPanel);
+            this.addWindowListener(this);
+        }
+
+        private DefaultCategoryDataset createDatasetOrdOfIter() {
+            DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+
+            for (InterpolationFunctions u : ListExperiment) {
+                for (int i = 0; i < u.getGrid_InterpolationValue().getGrid().length; i++) {
+                    double fy = u.getGrid_OriginalValue().getGrid()[i];
+                    double Py = u.getGrid_InterpolationValue().getGrid()[i];
+                    double x = u.getGridXval().getGrid()[i];
+                    dataset.addValue(fy, "original", x + "");
+                    dataset.addValue(Py, "interpolation", x + "");
+
+                }
+            }
+
+            return dataset;
+        }
+
+        @Override
+        public void windowClosing(WindowEvent event) {
+            if (event.getWindow() == null) {
+                this.dispose();
+                System.exit(0);
+            }
+        };
+    }
 }
+
 
 

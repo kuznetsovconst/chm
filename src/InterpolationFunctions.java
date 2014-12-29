@@ -9,13 +9,14 @@ import static java.lang.Math.*;
 public class InterpolationFunctions {
     private Grid grid_OriginalValue;
     private Grid grid_InterpolationValue;
+    private Grid gridXval;
     private String OriginalFunction;
 
     InterpolationFunctions(String f, Grid grid){
 
     }
-    InterpolationFunctions(String f,Grid grid, int el){
-
+     InterpolationFunctions(String f,Grid grid, int el){
+        gridXval = grid;
         grid.setSubgrid(grid,el);
         double[][] subgrid = grid.getSubgrid();
         double[] temp = grid.getGrid();
@@ -103,8 +104,15 @@ public class InterpolationFunctions {
         Grid.printGrid(grid_InterpolationValue);
     }
 
-    public Grid getG(){
+    public Grid getGrid_OriginalValue(){
         return grid_OriginalValue;
+    }
+    public Grid getGrid_InterpolationValue(){
+        return grid_InterpolationValue;
+    }
+
+    public Grid getGridXval(){
+        return gridXval;
     }
 
     public void setFunctionX(String f){

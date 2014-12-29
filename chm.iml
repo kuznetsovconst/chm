@@ -10,5 +10,9 @@
     <orderEntry type="library" name="Jama-1.0.2" level="project" />
     <orderEntry type="library" name="intellij-idea-13.0.0" level="project" />
     <orderEntry type="library" name="commons-io-1.3.2" level="project" />
+    <orderEntry type="library" name="lib2" level="project" />
+    <orderEntry type="library" name="chm" level="project" />
+    <orderEntry type="library" name="lib" level="project" />
+    <orderEntry type="library" name="lib1" level="project" />
   </component>
 </module>

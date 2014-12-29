@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="ant">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/jeval-0.9.4/lib/ant/ant-junit.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/jeval-0.9.4/lib/ant/ant.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/jeval-0.9.4/lib/ant/ant-launcher.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
