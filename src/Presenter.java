@@ -5,6 +5,7 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.ui.ApplicationFrame;
 import org.jfree.ui.RefineryUtilities;
 import org.jfree.data.category.DefaultCategoryDataset;
+import parsii.tokenizer.ParseException;
 
 
 import javax.swing.*;
@@ -20,9 +21,13 @@ import java.util.List;
 public class Presenter {
     private List<Model> listModel;
     private mainWin view;
+    private List<InterpolationFunctions> ListExperiment;
+    private List<Grid> listXval;
 
     public Presenter() {
         listModel = new ArrayList<Model>();
+        listXval = new ArrayList<Grid>();
+        ListExperiment = new ArrayList<InterpolationFunctions>();
         view = new mainWin(this);
         initWindow();
     }
@@ -76,11 +81,8 @@ public class Presenter {
                 while (l.hasNext()) {
                     i++;
                     Model temp = l.next();
-                    if ( temp.getVectorSolve() == null) {
-                        temp.solve();
-                        System.out.println("Закончил решать уравнение № " + i);
-                    }
-
+                    temp.solve();
+                    System.out.println("Закончил решать уравнение № " + i);
                 }
             }
         };
@@ -136,6 +138,69 @@ public class Presenter {
             }
         });
 
+    }
+
+    public void initTestGird(){
+        int k = 150;
+        for (int i = 0 ; i < 10; i++){
+            Grid temp = new Grid(1,25,k);
+            this.listXval.add(temp);
+            k+=50;
+        }
+
+    }
+
+    public void initTestInterpolationFunction(String f, int el){
+        for (Grid v : listXval){
+            InterpolationFunctions temp = new InterpolationFunctions(f,v,el);
+            this.ListExperiment.add(temp);
+        }
+    }
+
+    public ActionListener getTestExample(){
+        return new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String func = view.getFuncTextField();
+                try {
+                    initTestGird();
+                    initTestInterpolationFunction(func,5);
+                }catch (NumberFormatException ex) {
+                    view.createErrWind("Incorrect function. Please input correctly function");
+                }
+
+            }
+        };
+    }
+
+    public ActionListener getDataInterpolation(){
+        return new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                for (InterpolationFunctions t : ListExperiment){
+                    t.print();
+                }
+            }
+        };
+
+    }
+
+    public ActionListener getPlotFunc(){
+        return new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+               System.out.println("строим график функций");
+            }
+        };
+    }
+
+    public ActionListener getPlotData(){
+        return new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.println("строим график по данным");
+            }
+        };
     }
 
     public class LineChart_AWT extends ApplicationFrame {
